@@ -1,6 +1,6 @@
 package util
 
-const Token = "abcdefgh"
+const Token = "N3U3gOan"
 
 const (
 	SUCCESS = 0
