@@ -15,7 +15,7 @@ func CheckSig(c *gin.Context) {
 
 	sig := SignatureGen(Token, timestamp, nonce)
 	if sig == signature {
-		c.JSON(http.StatusOK, ResultSuccess(echostr))
+		c.Writer.Write([]byte(echostr))
 		return
 	}
 	c.JSON(http.StatusOK, ResultError(ERROR))
