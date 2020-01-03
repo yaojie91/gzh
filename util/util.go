@@ -2,6 +2,7 @@ package util
 
 import (
 	"crypto/sha1"
+	"fmt"
 	"sort"
 	"strings"
 )
@@ -15,7 +16,7 @@ func SignatureGen(token string, timestamp string, nonce string) string {
 	h := sha1.New()
 	h.Write([]byte(tmpArr))
 	result := h.Sum(nil)
-	return string(result)
+	return fmt.Sprintf("%x", result)
 }
 
 func ResultSuccess(data interface{}) Result {
