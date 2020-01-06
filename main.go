@@ -2,12 +2,15 @@ package main
 
 import (
 	"https/route"
+	"https/util"
 
 	"github.com/fvbock/endless"
 )
 
 func main() {
 	router := route.InitRouter()
+	endless.DefaultReadTimeOut = util.ReadTimeOut
+	endless.DefaultWriteTimeOut = util.WriteTimeOut
 	//router.GET("/hello", func(c *gin.Context) {
 	//	c.JSON(200, "hello world")
 	//})

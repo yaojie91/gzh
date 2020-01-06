@@ -1,9 +1,12 @@
 package controller
 
 import (
+	"fmt"
 	. "https/util"
+	"io/ioutil"
 	"net/http"
 
+	"github.com/clbanning/mxj"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,4 +22,11 @@ func CheckSig(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, ResultError(ERROR))
+}
+
+func ReplyMsg(c *gin.Context) {
+	data, _ := ioutil.ReadAll(c.Request.Body)
+	fmt.Println("----------", data)
+	m, _ := mxj.NewMapXml(data)
+	fmt.Println("---------------", m)
 }
