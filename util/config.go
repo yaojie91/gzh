@@ -5,8 +5,9 @@ import "time"
 const Token = "N3U3gOan"
 
 const (
-	SUCCESS = 0
-	ERROR   = 9000
+	SUCCESS    = 200
+	ERROR      = 9000
+	InValidMsg = 3001
 )
 
 const (
@@ -15,8 +16,9 @@ const (
 )
 
 var ErrMsg = map[int]string{
-	SUCCESS: "success",
-	ERROR:   "system_error",
+	SUCCESS:    "success",
+	ERROR:      "system_error",
+	InValidMsg: "invalid_message",
 }
 
 type Result map[string]interface{}

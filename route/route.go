@@ -9,6 +9,6 @@ import (
 func InitRouter() *gin.Engine {
 	router := gin.Default()
 	router.GET("/", controller.CheckSig)
-	router.POST("/", controller.ReplyMsg)
+	router.POST("/", controller.HandleTextMsg)
 	return router
 }

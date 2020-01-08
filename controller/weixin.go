@@ -1,10 +1,12 @@
 package controller
 
 import (
+	"encoding/xml"
 	"fmt"
 	. "https/util"
 	"io/ioutil"
-	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/clbanning/mxj"
 	"github.com/gin-gonic/gin"
@@ -21,12 +23,40 @@ func CheckSig(c *gin.Context) {
 		c.Writer.Write([]byte(echostr))
 		return
 	}
-	c.JSON(http.StatusOK, ResultError(ERROR))
+	c.JSON(SUCCESS, ResultError(ERROR, ""))
 }
 
-func ReplyMsg(c *gin.Context) {
+func HandleTextMsg(c *gin.Context) {
 	data, _ := ioutil.ReadAll(c.Request.Body)
-	fmt.Println("----------", data)
 	m, _ := mxj.NewMapXml(data)
-	fmt.Println("---------------", m)
+	xmlData, ok := m["xml"]
+	if !ok {
+		c.JSON(SUCCESS, ResultError(InValidMsg, ""))
+	}
+	msg, ok := xmlData.(map[string]interface{})
+	if !ok {
+		c.JSON(SUCCESS, ResultError(InValidMsg, ""))
+	}
+	var text []byte
+	text, err := Text(msg)
+	if err != nil {
+		c.JSON(SUCCESS, ResultError(ERROR, fmt.Sprintf("error: %v", err)))
+	}
+	fmt.Println("---------", text)
+	c.XML(SUCCESS, gin.H{"Data": text})
+	//c.Writer.Write([]byte(text))
+}
+
+func Text(msg map[string]interface{}) ([]byte, error) {
+	resp := TextMessage{}
+	resp.Content = Value2CDATA(msg["Content"].(string))
+	resp.FromUserName = Value2CDATA(msg["FromUserName"].(string))
+	resp.ToUserName = Value2CDATA(msg["ToUserName"].(string))
+	resp.CreateTime = Value2CDATA(strconv.FormatInt(time.Now().Unix(), 10))
+	resp.MsgType = Value2CDATA(msg["MsgType"].(string))
+	respXml, err := xml.Marshal(resp)
+	if err != nil {
+		return []byte{}, err
+	}
+	return respXml, nil
 }

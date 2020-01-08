@@ -27,13 +27,17 @@ func ResultSuccess(data interface{}) Result {
 	}
 }
 
-func ResultError(code int) Result {
-	//if msg == "" {
-	//	msg = ErrMsg[code]
-	//}
+func ResultError(code int, msg string) Result {
+	if msg == "" {
+		msg = ErrMsg[code]
+	}
 	return Result{
 		"errno":  code,
 		"errmsg": ErrMsg[code],
 		"data":   "",
 	}
+}
+
+func Value2CDATA(v string) CDATAText {
+	return CDATAText{"<![CDATA[" + v + "]]>"}
 }
