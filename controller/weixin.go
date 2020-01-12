@@ -5,7 +5,6 @@ import (
 	"fmt"
 	. "https/util"
 	"io/ioutil"
-	"strconv"
 	"time"
 
 	"github.com/clbanning/mxj"
@@ -42,17 +41,15 @@ func HandleTextMsg(c *gin.Context) {
 	if err != nil {
 		c.JSON(SUCCESS, ResultError(ERROR, fmt.Sprintf("error: %v", err)))
 	}
-	fmt.Println("---------", text)
-	c.XML(SUCCESS, gin.H{"Data": text})
-	//c.Writer.Write([]byte(text))
+	c.String(SUCCESS, string(text))
 }
 
 func Text(msg map[string]interface{}) ([]byte, error) {
 	resp := TextMessage{}
 	resp.Content = Value2CDATA(msg["Content"].(string))
-	resp.FromUserName = Value2CDATA(msg["FromUserName"].(string))
-	resp.ToUserName = Value2CDATA(msg["ToUserName"].(string))
-	resp.CreateTime = Value2CDATA(strconv.FormatInt(time.Now().Unix(), 10))
+	resp.FromUserName = Value2CDATA(msg["ToUserName"].(string))
+	resp.ToUserName = Value2CDATA(msg["FromUserName"].(string))
+	resp.CreateTime = time.Now().Unix()
 	resp.MsgType = Value2CDATA(msg["MsgType"].(string))
 	respXml, err := xml.Marshal(resp)
 	if err != nil {

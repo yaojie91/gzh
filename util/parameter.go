@@ -5,7 +5,7 @@ import "encoding/xml"
 type Base struct {
 	FromUserName CDATAText
 	ToUserName   CDATAText
-	CreateTime   CDATAText
+	CreateTime   int64
 	MsgType      CDATAText
 }
 
