@@ -1,8 +1,8 @@
 package main
 
 import (
-	"https/route"
-	"https/util"
+	"gzh/route"
+	"gzh/util"
 
 	"github.com/fvbock/endless"
 )

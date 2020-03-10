@@ -1,7 +1,7 @@
 package route
 
 import (
-	"https/controller"
+	"gzh/controller"
 
 	"github.com/gin-gonic/gin"
 )
