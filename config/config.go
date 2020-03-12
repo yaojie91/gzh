@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"os"
+	"time"
 )
 
 type Config struct {
@@ -16,12 +17,12 @@ type WxKey struct {
 }
 
 type Redis struct {
-	Host      string
-	Port      int
-	Password  string
-	MaxIdle   int
-	MaxActive int
-	Timeout   int
+	Host        string
+	Port        string
+	Password    string
+	MaxIdle     int
+	MaxActive   int
+	IdleTimeout time.Duration
 }
 
 var Conf *Config

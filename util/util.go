@@ -2,6 +2,7 @@ package util
 
 import (
 	"crypto/sha1"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"gzh/config"
@@ -10,19 +11,39 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/gomodule/redigo/redis"
 )
 
 func init() {
+	redisConf := config.Conf.Redis
 	AppID := config.Conf.WxKey.AppID
 	AppSecret := config.Conf.WxKey.AppSecret
-	freshTokenTicker := time.NewTicker(7000 * time.Nanosecond)
+	freshTokenTicker := time.NewTicker(7000 * time.Second)
+
+	redisClient := &redis.Pool{
+		MaxIdle:     redisConf.MaxIdle,
+		MaxActive:   redisConf.MaxActive,
+		IdleTimeout: redisConf.IdleTimeout,
+		Wait:        true,
+		Dial: func() (redis.Conn, error) {
+			con, err := redis.Dial("tcp", redisConf.Host)
+			if err != nil {
+				return nil, err
+			}
+			return con, err
+		},
+	}
 
 	go func() {
 		for range freshTokenTicker.C {
-			_, err := requestToken(AppID, AppSecret)
+			token, err := requestToken(AppID, AppSecret)
 			if err != nil {
 				panic(err)
 			}
+			rc := redisClient.Get()
+			rc.Do("Set", "access-token", token)
+			rc.Close()
 		}
 	}()
 }
@@ -81,4 +102,11 @@ func requestToken(appId, appSecret string) (string, error) {
 	if err != nil {
 		return "", errors.New("request token err :" + err.Error())
 	}
+	jMap := make(map[string]interface{})
+	err = json.NewDecoder(resp.Body).Decode(&jMap)
+	if err != nil {
+		return "", errors.New("request token response json parse err :" + err.Error())
+	}
+	fmt.Println("-----------", jMap)
+	return jMap["access_token"].(string), nil
 }
