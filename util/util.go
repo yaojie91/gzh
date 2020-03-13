@@ -116,4 +116,5 @@ func requestToken(appId, appSecret string) (string, error) {
 		//ResultError(jMap["errcode"].(int), jMap["errmsg"].(string))
 		return "", errors.New("request token response json parse err :" + jMap["errmsg"].(string))
 	}
+	//return jMap["access_token"].(string), nil
 }
