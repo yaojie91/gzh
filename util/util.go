@@ -27,7 +27,7 @@ func init() {
 		IdleTimeout: redisConf.IdleTimeout,
 		Wait:        true,
 		Dial: func() (redis.Conn, error) {
-			con, err := redis.Dial("tcp", redisConf.Host)
+			con, err := redis.Dial("tcp", redisConf.Host+":"+redisConf.Port)
 			if err != nil {
 				return nil, err
 			}
@@ -42,7 +42,10 @@ func init() {
 				panic(err)
 			}
 			rc := redisClient.Get()
-			rc.Do("Set", "access-token", token)
+			_, err = rc.Do("Set", "access_token", token)
+			if err != nil {
+				fmt.Println("err: ", err)
+			}
 			rc.Close()
 		}
 	}()
@@ -107,6 +110,10 @@ func requestToken(appId, appSecret string) (string, error) {
 	if err != nil {
 		return "", errors.New("request token response json parse err :" + err.Error())
 	}
-	fmt.Println("-----------", jMap)
-	return jMap["access_token"].(string), nil
+	if jMap["errcode"] == nil || jMap["errcode"] == 0 {
+		return jMap["access_token"].(string), nil
+	} else {
+		//ResultError(jMap["errcode"].(int), jMap["errmsg"].(string))
+		return "", errors.New("request token response json parse err :" + jMap["errmsg"].(string))
+	}
 }
