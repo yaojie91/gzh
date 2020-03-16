@@ -11,37 +11,25 @@ import (
 	"sort"
 	"strings"
 	"time"
-
-	"github.com/gomodule/redigo/redis"
 )
 
 func init() {
-	redisConf := config.Conf.Redis
 	AppID := config.Conf.WxKey.AppID
 	AppSecret := config.Conf.WxKey.AppSecret
 	freshTokenTicker := time.NewTicker(7000 * time.Second)
+	rc := config.RedisPool.Get()
 
-	redisClient := &redis.Pool{
-		MaxIdle:     redisConf.MaxIdle,
-		MaxActive:   redisConf.MaxActive,
-		IdleTimeout: redisConf.IdleTimeout,
-		Wait:        true,
-		Dial: func() (redis.Conn, error) {
-			con, err := redis.Dial("tcp", redisConf.Host+":"+redisConf.Port)
-			if err != nil {
-				return nil, err
-			}
-			return con, err
-		},
+	token, err := requestToken(AppID, AppSecret)
+	if err != nil {
+		panic(err)
 	}
-
+	_, err = rc.Do("Set", "access_token", token)
 	go func() {
 		for range freshTokenTicker.C {
 			token, err := requestToken(AppID, AppSecret)
 			if err != nil {
 				panic(err)
 			}
-			rc := redisClient.Get()
 			_, err = rc.Do("Set", "access_token", token)
 			if err != nil {
 				fmt.Println("err: ", err)
